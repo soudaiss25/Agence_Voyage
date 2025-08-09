@@ -1,0 +1,760 @@
+<!-- HEADER ADMIN -->
+<div class="bg-white shadow-sm border-bottom">
+  <div class="container-fluid">
+    <div class="row align-items-center py-3">
+      <div class="col-md-6">
+        <h2 class="mb-0 fw-bold" style="color: #0d6efd">
+           Dashboard Administrateur
+        </h2>
+      </div>
+      <div class="col-md-6 text-end">
+        <button class="btn btn-outline-primary me-2" (click)="refreshData()">
+          🔄 Actualiser
+        </button>
+        <!-- <button class="btn btn-outline-secondary" (click)="clearFilters()">
+           Effacer filtres
+        </button> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NAVIGATION SIDEBAR -->
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-2 bg-light min-vh-100 p-0">
+      <div class="nav flex-column nav-pills p-3" style="min-height: 100vh">
+        <button 
+          class="nav-link text-start mb-2" 
+          [class.active]="currentSection === 'overview'"
+          (click)="setCurrentSection('overview')"
+        >
+          📊 Vue d'ensemble
+        </button>
+        <button 
+          class="nav-link text-start mb-2" 
+          [class.active]="currentSection === 'bookings'"
+          (click)="setCurrentSection('bookings')"
+        >
+          📝 Réservations <span class="badge bg-warning ms-2"></span>
+        </button>
+        <button 
+          class="nav-link text-start mb-2" 
+          [class.active]="currentSection === 'customers'"
+          (click)="setCurrentSection('customers')"
+        >
+          👥 Clients
+        </button>
+        <button 
+          class="nav-link text-start mb-2" 
+          [class.active]="currentSection === 'destinations'"
+          (click)="setCurrentSection('destinations')"
+        >
+          🌍 Destinations
+        </button>
+        <button 
+          class="nav-link text-start mb-2" 
+          [class.active]="currentSection === 'settings'"
+          (click)="setCurrentSection('settings')"
+        >
+          ⚙️ Paramètres
+        </button>
+      </div>
+    </div>
+
+    <div class="col-md-10 p-4">
+
+      <!-- VUE D'ENSEMBLE -->
+      <div *ngIf="currentSection === 'overview'">
+        <div class="row mb-4">
+          <div class="col-12">
+            <h3 class="fw-bold mb-4">📊 Statistiques Générales</h3>
+          </div>
+        </div>
+
+        <!-- CARDS STATISTIQUES -->
+        <div class="row g-4 mb-5">
+          <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #0d6efd !important">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <h6 class="text-muted mb-2">Total Réservations</h6>
+                    <h3 class="mb-0 fw-bold" style="color: #0d6efd">{{dashboardStats.totalBookings}}</h3>
+                  </div>
+                  <div class="text-primary" style="font-size: 2.5rem">📝</div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #28a745 !important">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <h6 class="text-muted mb-2">Chiffre d'Affaires</h6>
+                    <h3 class="mb-0 fw-bold" style="color: #28a745">{{dashboardStats.totalRevenue}}</h3>
+                  </div>
+                  <div class="text-success" style="font-size: 2.5rem">💰</div>
+                </div>
+               
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #17a2b8 !important">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <h6 class="text-muted mb-2">Clients Actifs</h6>
+                    <h3 class="mb-0 fw-bold" style="color: #17a2b8">{{dashboardStats.activeCustomers}}</h3>
+                  </div>
+                  <div class="text-info" style="font-size: 2.5rem">👥</div>
+                </div>
+               
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #ffc107 !important">
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <h6 class="text-muted mb-2">En Attente</h6>
+                    <h3 class="mb-0 fw-bold" style="color: #ffc107">{{dashboardStats.pendingBookings}}</h3>
+                  </div>
+                  <div class="text-warning" style="font-size: 2.5rem">⏳</div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DESTINATIONS POPULAIRES -->
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold">🏆 Top Destinations</h5>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div *ngFor="let destination of getTopDestinations()" class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center p-3 bg-light rounded">
+                      <div class="me-3" style="font-size: 2rem">🌍</div>
+                      <div>
+                        <h6 class="mb-1 fw-bold">{{destination.name}}, {{destination.country}}</h6>
+                        <small class="text-muted">{{destination.totalBookings}} réservations</small>
+                        <div>
+                          <span *ngFor="let star of getStarArray(destination.rating)" class="text-warning">⭐</span>
+                          <span class="ms-1 fw-bold">{{destination.rating}}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold">📊 Actions Rapides</h5>
+              </div>
+              <div class="card-body">
+                <div class="d-grid gap-2">
+                  <button class="btn btn-primary" (click)="setCurrentSection('bookings')">
+                    📝 Gérer les réservations
+                  </button>
+                  <button class="btn btn-success" (click)="exportBookings()">
+                    📄 Exporter les données
+                  </button>
+                  <button class="btn btn-info" (click)="setCurrentSection('customers')">
+                    👥 Voir tous les clients
+                  </button>
+                  <button class="btn btn-warning" (click)="setCurrentSection('destinations')">
+                    🌍 Gérer destinations
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GESTION DES RÉSERVATIONS -->
+      <div *ngIf="currentSection === 'bookings'">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h3 class="fw-bold">📝 Gestion des Réservations</h3>
+          </div>
+          <div class="col-md-6 text-end">
+            <button class="btn btn-success" (click)="exportBookings()">
+              📊 Exporter
+            </button>
+          </div>
+        </div>
+
+        <!-- FILTRES RÉSERVATIONS -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label">Statut</label>
+                <select class="form-select" [(ngModel)]="bookingFilter.status">
+                  <option value="">Tous les statuts</option>
+                  <option value="pending">En attente</option>
+                  <option value="confirmed">Confirmée</option>
+                  <option value="cancelled">Annulée</option>
+                  <option value="completed">Terminée</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Date de départ (de)</label>
+                <input type="date" class="form-control" [(ngModel)]="bookingFilter.dateFrom">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Date de départ (à)</label>
+                <input type="date" class="form-control" [(ngModel)]="bookingFilter.dateTo">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Recherche</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Client, destination..."
+                  [(ngModel)]="bookingFilter.searchTerm"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLE RÉSERVATIONS -->
+        <div class="card border-0 shadow-sm">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Client</th>
+                  <th>Destination</th>
+                  <th>Départ</th>
+                  <th>Voyageurs</th>
+                  <th>Prix</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let booking of getPaginatedItems(getFilteredBookings())">
+                  <td class="fw-bold">#{{booking.id}}</td>
+                  <td>
+                    <div>
+                      <div class="fw-bold">{{booking.customerName}}</div>
+                      <small class="text-muted">{{booking.email}}</small>
+                    </div>
+                  </td>
+                  <td>{{booking.destination}}</td>
+                  <td>{{formatDate(booking.departureDate)}}</td>
+                  <td>{{booking.travelers}} pers.</td>
+                  <td class="fw-bold">{{booking.totalPrice}}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusBadgeClass(booking.status)">
+                      {{getStatusText(booking.status)}}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button 
+                        *ngIf="booking.status === 'pending'" 
+                        class="btn btn-success btn-sm"
+                        (click)="updateBookingStatus(booking.id, 'confirmed')"
+                      >
+                        ✅ Confirmer
+                      </button>
+                      <button 
+                        class="btn btn-primary btn-sm"
+                        (click)="sendNotification('booking', booking.id)"
+                      >
+                        📧 Notifier
+                      </button>
+                      <button 
+                        class="btn btn-danger btn-sm"
+                        (click)="deleteBooking(booking.id)"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- PAGINATION -->
+          <div class="card-footer bg-white" *ngIf="getTotalPages(getFilteredBookings()) > 1">
+            <nav>
+              <ul class="pagination justify-content-center mb-0">
+                <li class="page-item" [class.disabled]="currentPage === 1">
+                  <button class="page-link" (click)="changePage(currentPage - 1)">Précédent</button>
+                </li>
+                <li 
+                  *ngFor="let page of [].constructor(getTotalPages(getFilteredBookings())); let i = index"
+                  class="page-item" 
+                  [class.active]="currentPage === i + 1"
+                >
+                  <button class="page-link" (click)="changePage(i + 1)">{{i + 1}}</button>
+                </li>
+                <li class="page-item" [class.disabled]="currentPage === getTotalPages(getFilteredBookings())">
+                  <button class="page-link" (click)="changePage(currentPage + 1)">Suivant</button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <!-- GESTION DES CLIENTS -->
+      <div *ngIf="currentSection === 'customers'">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h3 class="fw-bold">👥 Gestion des Clients</h3>
+          </div>
+          <div class="col-md-6 text-end">
+            <button class="btn btn-success" (click)="exportCustomers()">
+              📊 Exporter
+            </button>
+          </div>
+        </div>
+
+        <!-- FILTRES CLIENTS -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Statut</label>
+                <select class="form-select" [(ngModel)]="customerFilter.status">
+                  <option value="">Tous les statuts</option>
+                  <option value="active">Actifs</option>
+                  <option value="inactive">Inactifs</option>
+                </select>
+              </div>
+              <div class="col-md-8">
+                <label class="form-label">Recherche</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Nom, email..."
+                  [(ngModel)]="customerFilter.searchTerm"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLE CLIENTS -->
+        <div class="card border-0 shadow-sm">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Client</th>
+                  <th>Contact</th>
+                  <th>Réservations</th>
+                  <th>Total Dépensé</th>
+                  <th>Inscription</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let customer of getPaginatedItems(getFilteredCustomers())">
+                  <td class="fw-bold">#{{customer.id}}</td>
+                  <td>
+                    <div class="fw-bold">{{customer.name}}</div>
+                  </td>
+                  <td>
+                    <div>
+                      <small class="d-block">📧 {{customer.email}}</small>
+                      <small class="text-muted">📞 {{customer.phone}}</small>
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge bg-info">{{customer.totalBookings}}</span>
+                  </td>
+                  <td class="fw-bold">{{customer.totalSpent}}</td>
+                  <td>{{formatDate(customer.registrationDate)}}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusBadgeClass(customer.status)">
+                      {{getStatusText(customer.status)}}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button 
+                        class="btn btn-outline-primary btn-sm"
+                        (click)="toggleCustomerStatus(customer.id)"
+                      >
+                        {{customer.status === 'active' ? '🔒 Désactiver' : '🔓 Activer'}}
+                      </button>
+                      <button 
+                        class="btn btn-primary btn-sm"
+                        (click)="sendNotification('customer', customer.id)"
+                      >
+                        📧 Contacter
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- PAGINATION CLIENTS -->
+          <div class="card-footer bg-white" *ngIf="getTotalPages(getFilteredCustomers()) > 1">
+            <nav>
+              <ul class="pagination justify-content-center mb-0">
+                <li class="page-item" [class.disabled]="currentPage === 1">
+                  <button class="page-link" (click)="changePage(currentPage - 1)">Précédent</button>
+                </li>
+                <li 
+                  *ngFor="let page of [].constructor(getTotalPages(getFilteredCustomers())); let i = index"
+                  class="page-item" 
+                  [class.active]="currentPage === i + 1"
+                >
+                  <button class="page-link" (click)="changePage(i + 1)">{{i + 1}}</button>
+                </li>
+                <li class="page-item" [class.disabled]="currentPage === getTotalPages(getFilteredCustomers())">
+                  <button class="page-link" (click)="changePage(currentPage + 1)">Suivant</button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <!-- GESTION DES DESTINATIONS -->
+      <div *ngIf="currentSection === 'destinations'">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h3 class="fw-bold">🌍 Gestion des Destinations</h3>
+          </div>
+          <div class="col-md-6 text-end">
+            <button class="btn btn-success">
+              ➕ Ajouter Destination
+            </button>
+          </div>
+        </div>
+
+        <!-- FILTRES DESTINATIONS -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label">Climat</label>
+                <select class="form-select" [(ngModel)]="destinationFilter.climate">
+                  <option value="">Tous les climats</option>
+                  <option value="Tropical">Tropical</option>
+                  <option value="Méditerranéen">Méditerranéen</option>
+                  <option value="Continental">Continental</option>
+                  <option value="Montagnard">Montagnard</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Pays</label>
+                <select class="form-select" [(ngModel)]="destinationFilter.country">
+                  <option value="">Tous les pays</option>
+                  <option value="Indonésie">Indonésie</option>
+                  <option value="Costa Rica">Costa Rica</option>
+                  <option value="Grèce">Grèce</option>
+                  <option value="Japon">Japon</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Recherche</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Nom, pays..."
+                  [(ngModel)]="destinationFilter.searchTerm"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARDS DESTINATIONS -->
+        <div class="row g-4">
+          <div *ngFor="let destination of getPaginatedItems(getFilteredDestinations())" class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-8">
+                    <div class="d-flex align-items-center mb-2">
+                      <h5 class="mb-0 fw-bold me-3">{{destination.name}}</h5>
+                      <span 
+                        class="badge" 
+                        [ngClass]="destination.isActive ? 'bg-success' : 'bg-danger'"
+                      >
+                        {{destination.isActive ? 'Actif' : 'Inactif'}}
+                      </span>
+                    </div>
+                    <p class="text-muted mb-2">📍 {{destination.country}} • {{destination.climate}}</p>
+                    <div class="mb-2">
+                      <span *ngFor="let star of getStarArray(destination.rating)" class="text-warning">⭐</span>
+                      <span class="fw-bold ms-1">{{destination.rating}}</span>
+                    </div>
+                    <div class="row text-center">
+                      <div class="col-6">
+                        <div class="fw-bold" style="color: #0d6efd">{{destination.price}}</div>
+                        <small class="text-muted">Prix</small>
+                      </div>
+                      <div class="col-6">
+                        <div class="fw-bold" style="color: #28a745">{{destination.totalBookings}}</div>
+                        <small class="text-muted">Réservations</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-4 text-center">
+                    <div style="font-size: 4rem">🌍</div>
+                  </div>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted">Mis à jour: {{formatDate(destination.lastUpdated)}}</small>
+                  <div class="btn-group btn-group-sm">
+                    <button 
+                      class="btn btn-outline-primary btn-sm"
+                      (click)="toggleDestinationStatus(destination.id)"
+                    >
+                      {{destination.isActive ? '🔒' : '🔓'}}
+                    </button>
+                    <button class="btn btn-outline-success btn-sm">
+                      ✏️ Modifier
+                    </button>
+                    <button 
+                      class="btn btn-outline-danger btn-sm"
+                      (click)="deleteDestination(destination.id)"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAGINATION DESTINATIONS -->
+        <div class="row mt-4" *ngIf="getTotalPages(getFilteredDestinations()) > 1">
+          <div class="col-12">
+            <nav>
+              <ul class="pagination justify-content-center">
+                <li class="page-item" [class.disabled]="currentPage === 1">
+                  <button class="page-link" (click)="changePage(currentPage - 1)">Précédent</button>
+                </li>
+                <li 
+                  *ngFor="let page of [].constructor(getTotalPages(getFilteredDestinations())); let i = index"
+                  class="page-item" 
+                  [class.active]="currentPage === i + 1"
+                >
+                  <button class="page-link" (click)="changePage(i + 1)">{{i + 1}}</button>
+                </li>
+                <li class="page-item" [class.disabled]="currentPage === getTotalPages(getFilteredDestinations())">
+                  <button class="page-link" (click)="changePage(currentPage + 1)">Suivant</button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <!-- PARAMÈTRES -->
+      <div *ngIf="currentSection === 'settings'">
+        <div class="row mb-4">
+          <div class="col-12">
+            <h3 class="fw-bold">⚙️ Paramètres du Système</h3>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Paramètres généraux -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold">🔧 Paramètres Généraux</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Nom du site</label>
+                  <input type="text" class="form-control" value="Voyage Intelligent">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Email de contact</label>
+                  <input type="email" class="form-control" value="admin@voyage-intelligent.com">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Devise par défaut</label>
+                  <select class="form-select">
+                    <option value="EUR" selected>Euro (€)</option>
+                    <option value="USD">Dollar ($)</option>
+                    <option value="GBP">Livre (£)</option>
+                  </select>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="maintenance" checked>
+                  <label class="form-check-label fw-bold" for="maintenance">
+                    Site en maintenance
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notifications -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold">📧 Notifications</h5>
+              </div>
+              <div class="card-body">
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="emailBooking" checked>
+                  <label class="form-check-label" for="emailBooking">
+                    Email pour nouvelles réservations
+                  </label>
+                </div>
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="emailCancel" checked>
+                  <label class="form-check-label" for="emailCancel">
+                    Email pour annulations
+                  </label>
+                </div>
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="smsNotif">
+                  <label class="form-check-label" for="smsNotif">
+                    Notifications SMS
+                  </label>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Fréquence des rapports</label>
+                  <select class="form-select">
+                    <option value="daily">Quotidien</option>
+                    <option value="weekly" selected>Hebdomadaire</option>
+                    <option value="monthly">Mensuel</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sécurité -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold">🔒 Sécurité</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Tentatives de connexion max</label>
+                  <input type="number" class="form-control" value="5">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Durée de session (minutes)</label>
+                  <input type="number" class="form-control" value="120">
+                </div>
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="2fa" checked>
+                  <label class="form-check-label" for="2fa">
+                    Authentification à 2 facteurs
+                  </label>
+                </div>
+                <button class="btn btn-warning">
+                  🔄 Changer mot de passe
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sauvegarde -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold">💾 Sauvegarde</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <p class="text-muted">Dernière sauvegarde: 06/08/2025 à 14:30</p>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Sauvegarde automatique</label>
+                  <select class="form-select">
+                    <option value="daily" selected>Quotidienne</option>
+                    <option value="weekly">Hebdomadaire</option>
+                    <option value="manual">Manuelle uniquement</option>
+                  </select>
+                </div>
+                <div class="d-grid gap-2">
+                  <button class="btn btn-primary">
+                    💾 Sauvegarder maintenant
+                  </button>
+                  <button class="btn btn-outline-secondary">
+                    📥 Restaurer sauvegarde
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions système -->
+        <div class="row mt-4">
+          <div class="col-12">
+            <div class="card border-0 shadow-sm border-danger">
+              <div class="card-header bg-danger text-white">
+                <h5 class="mb-0 fw-bold">⚠️ Zone Dangereuse</h5>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4">
+                    <button class="btn btn-outline-warning w-100 mb-2">
+                      🗑️ Vider le cache
+                    </button>
+                  </div>
+                  <div class="col-md-4">
+                    <button class="btn btn-outline-danger w-100 mb-2">
+                      📊 Réinitialiser statistiques
+                    </button>
+                  </div>
+                  <div class="col-md-4">
+                    <button class="btn btn-outline-dark w-100 mb-2">
+                      🔄 Redémarrer système
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton sauvegarder -->
+        <div class="row mt-4">
+          <div class="col-12 text-center">
+            <button class="btn btn-success btn-lg px-5">
+              💾 Sauvegarder tous les paramètres
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

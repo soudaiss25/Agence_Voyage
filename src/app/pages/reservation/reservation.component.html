@@ -1,0 +1,236 @@
+<div class="container-fluid bg-light min-vh-100 py-5">
+  <div class="container">
+    <!-- En-tête -->
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-8 text-center">
+        <h1 class="display-4 fw-bold text-primary mb-3">
+          <i class="fas fa-plane me-3"></i>Réservez votre prochain voyage
+        </h1>
+        <p class="lead text-muted">Découvrez le monde avec nos offres exclusives</p>
+      </div>
+    </div>
+
+    <!-- Formulaire de réservation -->
+    <div class="row justify-content-center" *ngIf="!reservationValidee">
+      <div class="col-lg-8">
+        <div class="card shadow-lg border-0">
+          <div class="card-header bg-primary text-white text-center py-4">
+            <h3 class="mb-0">
+              <i class="fas fa-calendar-alt me-2"></i>Nouvelle Réservation
+            </h3>
+          </div>
+          <div class="card-body p-4">
+            <form (ngSubmit)="confirmerReservation()" #formReservation="ngForm">
+              <div class="row">
+                <!-- Date de départ -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-semibold">
+                    <i class="fas fa-calendar me-2 text-primary"></i>Date de départ
+                  </label>
+                  <input 
+                    type="date" 
+                    class="form-control form-control-lg" 
+                    [(ngModel)]="reservation.date" 
+                    name="date" 
+                    required 
+                  />
+                </div>
+
+                <!-- Durée -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-semibold">
+                    <i class="fas fa-clock me-2 text-primary"></i>Durée du séjour
+                  </label>
+                  <select 
+                    class="form-select form-select-lg" 
+                    [(ngModel)]="reservation.duree" 
+                    name="duree" 
+                    required
+                  >
+                    <option value="" disabled selected>Choisissez une durée</option>
+                    <option value="3 jours">3 jours</option>
+                    <option value="1 semaine">1 semaine</option>
+                    <option value="2 semaines">2 semaines</option>
+                    <option value="1 mois">1 mois</option>
+                  </select>
+                </div>
+
+                <!-- Nombre de personnes -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-semibold">
+                    <i class="fas fa-users me-2 text-primary"></i>Nombre de personnes
+                  </label>
+                  <input 
+                    type="number" 
+                    class="form-control form-control-lg" 
+                    [(ngModel)]="reservation.personnes" 
+                    name="personnes" 
+                    min="1" 
+                    max="10"
+                    required 
+                  />
+                </div>
+
+                <!-- Destination -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-semibold">
+                    <i class="fas fa-map-marker-alt me-2 text-primary"></i>Destination
+                  </label>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-lg" 
+                    [(ngModel)]="reservation.destination" 
+                    name="destination" 
+                    placeholder="Ex: Paris, Marrakech, Tokyo..."
+                    required 
+                  />
+                </div>
+
+                <!-- Hébergement -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-semibold">
+                    <i class="fas fa-bed me-2 text-primary"></i>Hébergement souhaité
+                  </label>
+                  <select 
+                    class="form-select form-select-lg" 
+                    [(ngModel)]="reservation.hebergement" 
+                    name="hebergement" 
+                    required
+                  >
+                    <option value="" disabled selected>Choisissez un hébergement</option>
+                    <option value="Hôtel 5 étoiles">Hôtel 5 étoiles</option>
+                    <option value="Hôtel 4 étoiles">Hôtel 4 étoiles</option>
+                    <option value="Hôtel 3 étoiles">Hôtel 3 étoiles</option>
+                    <option value="Appartement">Appartement</option>
+                    <option value="Riad">Riad</option>
+                    <option value="Villa">Villa</option>
+                  </select>
+                </div>
+
+                <!-- Transport -->
+                <div class="col-md-6 mb-4">
+                  <label class="form-label fw-semibold">
+                    <i class="fas fa-plane me-2 text-primary"></i>Transport
+                  </label>
+                  <select 
+                    class="form-select form-select-lg" 
+                    [(ngModel)]="reservation.transport" 
+                    name="transport" 
+                    required
+                  >
+                    <option value="" disabled selected>Choisissez un transport</option>
+                    <option value="Avion">✈️ Avion</option>
+                    <option value="Voiture">🚗 Voiture</option>
+                    <option value="Bus">🚌 Bus</option>
+                    <option value="Train">🚆 Train</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="d-grid">
+                <button 
+                  type="submit" 
+                  class="btn btn-primary btn-lg py-3"
+                  [disabled]="!formReservation.form.valid"
+                >
+                  <i class="fas fa-check-circle me-2"></i>
+                  Confirmer la réservation
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Résumé de la réservation -->
+    <div class="row justify-content-center" *ngIf="reservationValidee">
+      <div class="col-lg-8">
+        <div class="card shadow-lg border-0">
+          <div class="card-header bg-success text-white text-center py-4">
+            <h3 class="mb-0">
+              <i class="fas fa-check-circle me-2"></i>Réservation Confirmée
+            </h3>
+          </div>
+          <div class="card-body p-4">
+            <div class="text-center mb-4">
+              <i class="fas fa-thumbs-up text-success" style="font-size: 4rem;"></i>
+              <h4 class="mt-3 text-success">Félicitations ! Votre voyage est réservé</h4>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="bg-light p-3 rounded">
+                  <h6 class="text-muted mb-2">
+                    <i class="fas fa-calendar text-primary me-2"></i>Date de départ
+                  </h6>
+                  <p class="mb-0 fw-bold">{{ reservation.date | date:'fullDate':'fr' }}</p>
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <div class="bg-light p-3 rounded">
+                  <h6 class="text-muted mb-2">
+                    <i class="fas fa-map-marker-alt text-primary me-2"></i>Destination
+                  </h6>
+                  <p class="mb-0 fw-bold">{{ reservation.destination }}</p>
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <div class="bg-light p-3 rounded">
+                  <h6 class="text-muted mb-2">
+                    <i class="fas fa-clock text-primary me-2"></i>Durée
+                  </h6>
+                  <p class="mb-0 fw-bold">{{ reservation.duree }}</p>
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <div class="bg-light p-3 rounded">
+                  <h6 class="text-muted mb-2">
+                    <i class="fas fa-users text-primary me-2"></i>Voyageurs
+                  </h6>
+                  <p class="mb-0 fw-bold">{{ reservation.personnes }} personne(s)</p>
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <div class="bg-light p-3 rounded">
+                  <h6 class="text-muted mb-2">
+                    <i class="fas fa-bed text-primary me-2"></i>Hébergement
+                  </h6>
+                  <p class="mb-0 fw-bold">{{ reservation.hebergement }}</p>
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <div class="bg-light p-3 rounded">
+                  <h6 class="text-muted mb-2">
+                    <i class="fas fa-plane text-primary me-2"></i>Transport
+                  </h6>
+                  <p class="mb-0 fw-bold">{{ reservation.transport }}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="alert alert-success mt-4" role="alert">
+              <i class="fas fa-info-circle me-2"></i>
+              Un email de confirmation vous sera envoyé sous peu avec tous les détails de votre réservation.
+            </div>
+            
+            <div class="d-grid mt-4">
+              <button 
+                class="btn btn-outline-primary btn-lg"
+                (click)="resetForm()"
+              >
+                <i class="fas fa-plus me-2"></i>
+                Nouvelle réservation
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,194 @@
+/* Styles personnalisés pour le composant de réservation */
+
+/* Animation pour les cartes */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Styles pour les champs de formulaire */
+.form-control:focus,
+.form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Animation pour les labels */
+.form-label {
+  transition: color 0.3s ease;
+}
+
+.form-label:hover {
+  color: #0d6efd !important;
+}
+
+/* Styles pour les icônes */
+.fas {
+  transition: transform 0.3s ease;
+}
+
+.form-label:hover .fas {
+  transform: scale(1.2);
+}
+
+/* Bouton principal */
+.btn-primary {
+  background: linear-gradient(45deg, #0d6efd, #6610f2);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(45deg, #0b5ed7, #5a0fc7);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3);
+}
+
+.btn-primary:disabled {
+  background: #6c757d;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Styles pour la section de confirmation */
+.bg-success {
+  background: linear-gradient(45deg, #198754, #20c997) !important;
+}
+
+/* Animation d'apparition */
+.card {
+  animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design amélioré */
+@media (max-width: 768px) {
+  .display-4 {
+    font-size: 2.5rem;
+  }
+  
+  .card-body {
+    padding: 1.5rem !important;
+  }
+  
+  .form-control-lg,
+  .form-select-lg {
+    font-size: 1rem;
+    padding: 0.75rem;
+  }
+}
+
+/* Amélioration des alertes */
+.alert {
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.alert-success {
+  background: linear-gradient(45deg, #d1e7dd, #badbcc);
+  color: #0f5132;
+}
+
+/* Styles pour les cases d'information */
+.bg-light {
+  background: linear-gradient(45deg, #f8f9fa, #e9ecef) !important;
+  border-radius: 10px !important;
+  transition: all 0.3s ease;
+}
+
+.bg-light:hover {
+  background: linear-gradient(45deg, #e9ecef, #dee2e6) !important;
+  transform: translateY(-2px);
+}
+
+/* Amélioration du header */
+.card-header {
+  border-bottom: none;
+  border-radius: 0.5rem 0.5rem 0 0 !important;
+}
+
+/* Styles pour les options de select */
+option {
+  padding: 10px;
+  font-size: 1rem;
+}
+
+/* Animation pour les icônes de confirmation */
+.fa-thumbs-up {
+  animation: bounce 1s ease;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Amélioration du container principal */
+.container-fluid {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+}
+
+/* Styles pour le titre principal */
+.display-4 {
+  background: linear-gradient(45deg, #0d6efd, #6610f2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Amélioration des transitions globales */
+* {
+  transition: all 0.3s ease;
+}
+
+/* Styles pour les placeholders */
+::placeholder {
+  color: #6c757d;
+  opacity: 0.7;
+}
+
+/* Amélioration des focus states */
+.form-control:focus,
+.form-select:focus {
+  background-color: #fff;
+  border-color: #0d6efd;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Styles pour les erreurs de validation */
+.form-control.ng-invalid.ng-touched,
+.form-select.ng-invalid.ng-touched {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Amélioration des badges et étiquettes */
+.badge {
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+}
