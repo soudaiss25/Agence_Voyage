@@ -165,82 +165,52 @@
           </div>
 
           <!-- Formulaire -->
-          <form>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-2">
-                  <label for="firstname" class="form-label fw-semibold text-dark small">
-                     Prénom
-                  </label>
-                  <input type="text" 
-                         class="form-control border-2" 
-                         id="firstname" 
-                         placeholder="Soudaiss" 
-                         style="border-radius: 8px;">
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-2">
-                  <label for="lastname" class="form-label fw-semibold text-dark small">
-                     Nom
-                  </label>
-                  <input type="text" 
-                         class="form-control border-2" 
-                         id="lastname" 
-                         placeholder="ELFAYADINE" 
-                         style="border-radius: 8px;">
-                </div>
-              </div>
-            </div>
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+           <div class="row">
+    <div class="col-md-6">
+      <div class="mb-2">
+        <label for="firstname" class="form-label fw-semibold text-dark small">Prénom</label>
+        <input type="text" id="firstname" class="form-control border-2" 
+               formControlName="prenom" placeholder="Soudaiss" style="border-radius: 8px;">
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="mb-2">
+        <label for="lastname" class="form-label fw-semibold text-dark small">Nom</label>
+        <input type="text" id="lastname" class="form-control border-2" 
+               formControlName="nom" placeholder="ELFAYADINE" style="border-radius: 8px;">
+      </div>
+    </div>
+  </div>
 
             <div class="mb-2">
-              <label for="email" class="form-label fw-semibold text-dark small">
-                Adresse email
-              </label>
-              <input type="email" 
-                     class="form-control border-2" 
-                     id="email" 
-                     placeholder="exemple@domaine.com" 
-                     style="border-radius: 8px;">
-            </div>
+    <label for="email" class="form-label fw-semibold text-dark small">Adresse email</label>
+    <input type="email" id="email" class="form-control border-2" 
+           formControlName="email" placeholder="exemple@domaine.com" style="border-radius: 8px;">
+  </div>
 
-            <div class="mb-2">
-              <label for="phone" class="form-label fw-semibold text-dark small">
-                 Téléphone
-              </label>
-              <input type="tel" 
-                     class="form-control border-2" 
-                     id="phone" 
-                     placeholder="+221 77 347 56 78" 
-                     style="border-radius: 8px;">
-            </div>
+           <div class="mb-2">
+    <label for="phone" class="form-label fw-semibold text-dark small">Téléphone</label>
+    <input type="tel" id="phone" class="form-control border-2" 
+           formControlName="telephone" placeholder="+221 77 347 56 78" style="border-radius: 8px;">
+  </div>
 
             <div class="row">
-              <div class="col-md-6">
-                <div class="mb-2">
-                  <label for="password" class="form-label fw-semibold text-dark small">
-                     Mot de passe
-                  </label>
-                  <input type="password" 
-                         class="form-control border-2" 
-                         id="password" 
-                         placeholder="••••••••" 
-                         style="border-radius: 8px;">
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-2">
-                  <label for="confirmPassword" class="form-label fw-semibold text-dark small">
-                    Confirmer
-                  </label>
-                  <input type="password" 
-                         class="form-control border-2" 
-                         id="confirmPassword" 
-                         placeholder="••••••••" 
-                         style="border-radius: 8px;">
-                </div>
-              </div>
-            </div>
+    <div class="col-md-6">
+      <div class="mb-2">
+        <label for="password" class="form-label fw-semibold text-dark small">Mot de passe</label>
+        <input type="password" id="password" class="form-control border-2" 
+               formControlName="motDePasse" placeholder="••••••••" style="border-radius: 8px;">
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="mb-2">
+        <label for="confirmPassword" class="form-label fw-semibold text-dark small">Confirmer</label>
+        <input type="password" id="confirmPassword" class="form-control border-2" 
+               formControlName="confirmPassword" placeholder="••••••••" style="border-radius: 8px;">
+      </div>
+    </div>
+  </div>
 
             <!-- Conditions d'utilisation -->
             <div class="mb-2">
@@ -265,11 +235,11 @@
               </div>
             </div>
 
-            <button type="submit" 
-                    class="btn btn-lg w-100 text-white fw-semibold mb-2" 
-                    style="background: linear-gradient(135deg, #0d6efd 0%); border-radius: 8px; border: none;">
-               Créer mon compte
-            </button>
+             <button type="submit" class="btn btn-lg w-100 text-white fw-semibold mb-2" 
+          [disabled]="loading || registerForm.invalid"
+          style="background: linear-gradient(135deg, #0d6efd 0%); border-radius: 8px; border: none;">
+    {{ loading ? 'Inscription...' : 'Créer mon compte' }}
+  </button>
           </form>
 
           <!-- Séparateur -->

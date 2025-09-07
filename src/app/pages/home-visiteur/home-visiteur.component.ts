@@ -1,27 +1,36 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
+import { User } from '../../models/user.inteface';
 
 @Component({
   selector: 'app-home-visiteur',
   templateUrl: './home-visiteur.component.html',
-  styleUrl: './home-visiteur.component.css'
+  styleUrls: ['./home-visiteur.component.css']
 })
-export class HomeVisiteurComponent {
-  destinations = [
-    {
-      nom: 'Zanzibar',
-      image: 'assets/zanzibar.jpg',
-      description: 'Une île paradisiaque entre sable blanc et mer turquoise.'
-    },
-    {
-      nom: 'Moroni',
-      image: 'assets/moroni.jpg',
-      description: 'Découvrez la culture comorienne et ses paysages volcaniques.'
-    },
-    {
-      nom: 'Madagascar',
-      image: 'assets/madagascar.jpg',
-      description: 'Une aventure entre faune rare et nature luxuriante.'
-    }
-  ];
+export class HomeVisiteurComponent implements OnInit {
 
+  isAuthenticated = false;
+  currentUser: User | null = null;
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    // 1) Vérification instantanée
+    this.isAuthenticated = this.authService.isAuthenticated();
+    this.currentUser = this.authService.getCurrentUserValue();
+
+    // 2) S’abonner pour réagir aux changements (login/logout)
+    this.authService.isAuthenticated$.subscribe(status => {
+      this.isAuthenticated = status;
+    });
+
+    this.authService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+    });
+  }
+  logout(): void {
+    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+      this.authService.logout(); // ← Utilise votre AuthService existant
+    }
+  }
 }

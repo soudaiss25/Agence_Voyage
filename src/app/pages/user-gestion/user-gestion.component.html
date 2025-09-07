@@ -1,0 +1,320 @@
+<!-- HEADER ADMIN -->
+<div class="bg-white border-bottom">
+  <div class="container-fluid">
+    <div class="row align-items-center py-3">
+      <div class="col-md-6">
+        <h1 class="mb-0 fw-bold text-primary">Gestion des Utilisateurs</h1>
+      </div>
+      <div class="col-md-6 text-end">
+        <button class="btn btn-outline-primary me-2" (click)="refreshData()">
+          <i class="fas fa-sync-alt"></i> Actualiser
+        </button>
+        <button class="btn btn-outline-danger">
+          <i class="fas fa-sign-out-alt" (click)="logout()"></i> Déconnexion
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- NAVIGATION SIDEBAR -->
+    <div class="col-md-2 bg-white border-end p-0">
+      <div class="nav flex-column p-3" style="min-height: calc(100vh - 80px)">
+        <button 
+          class="nav-link-custom text-start mb-2" 
+          [class.active]="currentSection === 'overview'"
+          (click)="setCurrentSection('overview')"
+        >
+          <i class="fas fa-chart-line me-2"></i>
+          Vue d'ensemble
+        </button>
+        <button 
+          class="nav-link-custom text-start mb-2" 
+          [class.active]="currentSection === 'bookings'"
+          (click)="setCurrentSection('bookings')"
+        >
+          <i class="fas fa-calendar-alt me-2"></i>
+          Réservations 
+        </button>
+        <button 
+          class="nav-link-custom text-start mb-2 active" 
+          [class.active]="currentSection === 'customers'"
+          (click)="setCurrentSection('customers')"
+        >
+          <i class="fas fa-users me-2"></i>
+          Clients
+        </button>
+       
+        <button 
+          class="nav-link-custom text-start mb-2" 
+          [class.active]="currentSection === 'destinations'"
+          (click)="goToDestinations()"
+        >
+          <i class="fas fa-map-marked-alt me-2"></i>
+          Destinations
+        </button>
+        <button 
+          class="nav-link-custom text-start mb-2" 
+          [class.active]="currentSection === 'settings'"
+          (click)="setCurrentSection('settings')"
+        >
+          <i class="fas fa-cog me-2"></i>
+          Paramètres
+        </button>
+      </div>
+    </div>
+
+    <div class="col-md-10 p-4" style="background-color: #f8fafc;">
+      
+      <!-- GESTION DES UTILISATEURS -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <h2 class="fw-bold">Gestion des Utilisateurs</h2>
+        </div>
+        <div class="col-md-6 text-end">
+          <button class="btn btn-success" (click)="exportUsers()">
+            <i class="fas fa-download me-2"></i>
+            Exporter
+          </button>
+        </div>
+      </div>
+
+      <!-- FILTRES UTILISATEURS -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Rôle</label>
+              <select class="form-select" [(ngModel)]="userFilter.role">
+                <option value="">Tous les rôles</option>
+                <option value="admin">Administrateur</option>
+                <option value="user">Utilisateur</option>
+                <option value="guide">Guide</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Date d'inscription (de)</label>
+              <input type="date" class="form-control" [(ngModel)]="userFilter.dateFrom">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Date d'inscription (à)</label>
+              <input type="date" class="form-control" [(ngModel)]="userFilter.dateTo">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">Recherche</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Nom, email, téléphone..."
+                [(ngModel)]="userFilter.searchTerm"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLE UTILISATEURS -->
+      <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="fw-semibold">ID</th>
+                <th class="fw-semibold">Nom & Prénom</th>
+                <th class="fw-semibold">Contact</th>
+                <th class="fw-semibold">Login</th>
+                <th class="fw-semibold">Rôle</th>
+                <th class="fw-semibold">Inscription</th>
+                <th class="fw-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of getPaginatedItems(getFilteredUsers())">
+                <td class="fw-bold">#{{user.id}}</td>
+                <td>
+                  <div class="fw-semibold">{{user.nom}} {{user.prenom}}</div>
+                </td>
+                <td>
+                  <div>
+                    <small class="d-block"><i class="fas fa-envelope me-1"></i>{{user.email}}</small>
+                    <small class="text-muted"><i class="fas fa-phone me-1"></i>{{user.telephone}}</small>
+                  </div>
+                </td>
+                <td>{{user.login}}</td>
+                <td>
+                  <span class="badge rounded-pill" [ngClass]="getRoleBadgeClass(user.role)">
+                    {{getRoleText(user.role)}}
+                  </span>
+                </td>
+                <td>{{formatDate(user.created_at)}}</td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <button 
+                      class="btn btn-outline-primary btn-sm"
+                      (click)="editUser(user)"
+                      title="Modifier"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button 
+                      class="btn btn-danger btn-sm"
+                      (click)="deleteUser(user.id!)"
+                      title="Supprimer"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- PAGINATION UTILISATEURS -->
+        <div class="card-footer bg-white" *ngIf="getTotalPages(getFilteredUsers()) > 1">
+          <nav>
+            <ul class="pagination justify-content-center mb-0">
+              <li class="page-item" [class.disabled]="currentPage === 1">
+                <button class="page-link" (click)="changePage(currentPage - 1)">Précédent</button>
+              </li>
+              <li 
+                *ngFor="let page of [].constructor(getTotalPages(getFilteredUsers())); let i = index"
+                class="page-item" 
+                [class.active]="currentPage === i + 1"
+              >
+                <button class="page-link" (click)="changePage(i + 1)">{{i + 1}}</button>
+              </li>
+              <li class="page-item" [class.disabled]="currentPage === getTotalPages(getFilteredUsers())">
+                <button class="page-link" (click)="changePage(currentPage + 1)">Suivant</button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Statistiques rapides -->
+      <div class="row g-4 mt-4">
+        <div class="col-lg-3 col-md-6">
+          <div class="card h-100 border-0 shadow-sm stat-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-muted mb-2 text-uppercase fw-semibold" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                    Total Utilisateurs
+                  </p>
+                  <h3 class="mb-1 fw-bold text-primary" style="font-size: 2rem;">
+                    {{users.length | number}}
+                  </h3>
+                </div>
+                <div class="text-primary opacity-75">
+                  <i class="fas fa-users fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <div class="card h-100 border-0 shadow-sm stat-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-muted mb-2 text-uppercase fw-semibold" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                    Administrateurs
+                  </p>
+                  <h3 class="mb-1 fw-bold text-danger" style="font-size: 2rem;">
+                    {{getAdminCount() | number}}
+                  </h3>
+                </div>
+                <div class="text-danger opacity-75">
+                  <i class="fas fa-user-shield fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <div class="card h-100 border-0 shadow-sm stat-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-muted mb-2 text-uppercase fw-semibold" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                    Utilisateurs
+                  </p>
+                  <h3 class="mb-1 fw-bold text-success" style="font-size: 2rem;">
+                    {{getUserCount() | number}}
+                  </h3>
+                </div>
+                <div class="text-success opacity-75">
+                  <i class="fas fa-user fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6">
+          <div class="card h-100 border-0 shadow-sm stat-card">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <p class="text-muted mb-2 text-uppercase fw-semibold" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                    Guides
+                  </p>
+                  <h3 class="mb-1 fw-bold text-info" style="font-size: 2rem;">
+                    {{getGuideCount() | number}}
+                  </h3>
+                </div>
+                <div class="text-info opacity-75">
+                  <i class="fas fa-map-marker-alt fa-2x"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- CSS personnalisé pour le style -->
+<style>
+.nav-link-custom {
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1.5rem;
+  color: #64748b;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.nav-link-custom:hover {
+  background-color: #f1f5f9;
+  color: #2563eb;
+}
+
+.nav-link-custom.active {
+  background-color: #2563eb;
+  color: white;
+}
+
+.stat-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.badge.bg-danger { background-color: #dc3545 !important; }
+.badge.bg-success { background-color: #198754 !important; }
+.badge.bg-info { background-color: #0dcaf0 !important; }
+</style>

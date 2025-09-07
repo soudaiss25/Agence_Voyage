@@ -1,0 +1,394 @@
+<div class="container-fluid min-vh-100" style="background: linear-gradient(135deg, #0d6efd )">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="text-center text-white mb-5">
+          <h1 class="display-4 fw-bold mb-3"> Finaliser Votre Réservation</h1>
+          <p class="lead">Plus qu'une étape pour concrétiser votre voyage de rêve !</p>
+        </div>
+
+        <!-- Messages d'erreur/succès -->
+        <div *ngIf="errorMessage" class="alert alert-danger mb-4" role="alert">
+          <button type="button" class="btn-close" aria-label="Close" (click)="errorMessage = ''"></button>
+          {{ errorMessage }}
+        </div>
+
+        <div *ngIf="successMessage" class="alert alert-success mb-4" role="alert">
+          <button type="button" class="btn-close" aria-label="Close" (click)="successMessage = ''"></button>
+          {{ successMessage }}
+        </div>
+
+        <!-- Spinner de chargement -->
+        <div *ngIf="isLoading" class="text-center mb-4">
+          <div class="spinner-border text-light" role="status">
+            <span class="visually-hidden">Traitement de votre réservation...</span>
+          </div>
+          <p class="text-white mt-2">Traitement de votre réservation en cours...</p>
+        </div>
+
+        <div class="row g-4" [style.opacity]="isLoading ? '0.5' : '1'">
+          <!-- Récapitulatif du voyage -->
+          <div class="col-lg-4">
+            <div class="card shadow-lg border-0 h-100" style="border-radius: 20px">
+              <div class="card-header text-center p-4" style="background-color: #0d6efd; color: white; border-radius: 20px 20px 0 0">
+                <h4 class="fw-bold mb-0">Récapitulatif</h4>
+              </div>
+              <div class="card-body p-4" *ngIf="selectedTrip">
+                <div class="text-center mb-4">
+                  <img *ngIf="selectedTrip.image" [src]="selectedTrip.image" class="img-fluid mb-3" 
+                       style="max-height: 150px; object-fit: cover; border-radius: 10px;" />
+                  <div *ngIf="!selectedTrip.image" style="font-size: 3rem">{{selectedTrip.image_placeholder}}</div>
+                  <h5 class="fw-bold">{{selectedTrip.destination}}</h5>
+                  <small class="text-muted">{{selectedTrip.pays}}</small>
+                </div>
+                
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between">
+                    <span>Destination :</span>
+                    <strong>{{selectedTrip.destination}}</strong>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between">
+                    <span>Durée :</span>
+                    <strong>{{getTripDuration()}} jour{{getTripDuration() > 1 ? 's' : ''}}</strong>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between">
+                    <span>Prix par personne :</span>
+                    <strong>{{selectedTrip.price}}</strong>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between">
+                    <span>Nombre de voyageurs :</span>
+                    <strong>{{bookingData.travelers}}</strong>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between">
+                    <span>Type d'hébergement :</span>
+                    <strong>{{bookingData.typeHebergement}}</strong>
+                  </div>
+                </div>
+                
+                <hr/>
+                
+                <div class="d-flex justify-content-between">
+                  <span class="fw-bold">Total :</span>
+                  <strong style="color: #0d6efd; font-size: 1.2rem">{{calculateTotalPrice()}}</strong>
+                </div>
+
+                <!-- Dates du voyage -->
+                <div class="mt-3" *ngIf="bookingData.departureDate && bookingData.returnDate">
+                  <small class="text-muted">
+                    <strong>Période :</strong><br>
+                    Du {{formatDate(bookingData.departureDate)}}<br>
+                    Au {{formatDate(bookingData.returnDate)}}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulaire de réservation -->
+          <div class="col-lg-8">
+            <div class="card shadow-lg border-0" style="border-radius: 20px">
+              <div class="card-body p-5">
+                <h4 class="fw-bold mb-4" style="color: #0d6efd">
+                   Informations de réservation
+                </h4>
+
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Prénom *</label>
+                    <input 
+                      type="text" 
+                      class="form-control form-control-lg"
+                      [(ngModel)]="bookingData.firstName"
+                      (ngModelChange)="onBookingDataChange('firstName', $event)"
+                      [disabled]="isLoading || isBookingSubmitted"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Nom *</label>
+                    <input 
+                      type="text" 
+                      class="form-control form-control-lg"
+                      [(ngModel)]="bookingData.lastName"
+                      (ngModelChange)="onBookingDataChange('lastName', $event)"
+                      [disabled]="isLoading || isBookingSubmitted"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                       Email *
+                    </label>
+                    <input 
+                      type="email" 
+                      class="form-control form-control-lg"
+                      [(ngModel)]="bookingData.email"
+                      (ngModelChange)="onBookingDataChange('email', $event)"
+                      [disabled]="isLoading || isBookingSubmitted"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                       Téléphone *
+                    </label>
+                    <input 
+                      type="tel" 
+                      class="form-control form-control-lg"
+                      [(ngModel)]="bookingData.phone"
+                      (ngModelChange)="onBookingDataChange('phone', $event)"
+                      [disabled]="isLoading || isBookingSubmitted"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Nombre de voyageurs *</label>
+                    <select 
+                      class="form-select form-select-lg"
+                      [(ngModel)]="bookingData.travelers"
+                      (ngModelChange)="onBookingDataChange('travelers', $event); onTravelersChange()"
+                      [disabled]="isLoading || isBookingSubmitted"
+                    >
+                      <option *ngFor="let num of travelerOptions" [value]="num">
+                        {{num}} personne{{num > 1 ? 's' : ''}}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Type d'hébergement *</label>
+                    <select 
+                      class="form-select form-select-lg"
+                      [(ngModel)]="bookingData.typeHebergement"
+                      (ngModelChange)="onBookingDataChange('typeHebergement', $event)"
+                      [disabled]="isLoading || isBookingSubmitted"
+                    >
+                      <option *ngFor="let type of hebergementOptions" [value]="type.value">
+                        {{type.label}}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                       Date de départ souhaitée *
+                    </label>
+                   <input 
+  type="date" 
+  class="form-control form-control-lg"
+  [(ngModel)]="bookingData.departureDate"
+  (ngModelChange)="onBookingDataChange('departureDate', $event); onDepartureDateChange()"
+  [min]="minDate"
+  [disabled]="isLoading || isBookingSubmitted"
+/>
+                    <div *ngIf="bookingData.departureDate && !isValidDepartureDate()" class="text-danger small mt-1">
+                      La date de départ doit être dans le futur
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">
+                       Date de retour *
+                    </label>
+                    <input 
+                      type="date" 
+                      class="form-control form-control-lg"
+                      [(ngModel)]="bookingData.returnDate"
+                      (ngModelChange)="onBookingDataChange('returnDate', $event)"
+                      [min]="bookingData.departureDate"
+                      [disabled]="isLoading || isBookingSubmitted"
+                    />
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label fw-bold">Demandes spéciales (optionnel)</label>
+                    <textarea 
+                      class="form-control" 
+                      rows="3"
+                      placeholder="Anniversaire, régime alimentaire, accessibilité..."
+                      [(ngModel)]="bookingData.specialRequests"
+                      (ngModelChange)="onBookingDataChange('specialRequests', $event)"
+                      [disabled]="isLoading || isBookingSubmitted"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div class="mt-4 p-3 bg-light rounded" *ngIf="!isBookingSubmitted">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="terms" [disabled]="isLoading"/>
+                    <label class="form-check-label" for="terms">
+                      J'accepte les <a href="#" style="color: #0d6efd">conditions générales</a> et la <a href="#" style="color: #0d6efd">politique de confidentialité</a>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="d-grid gap-3 mt-4" *ngIf="!isBookingSubmitted">
+                  <button 
+                    class="btn btn-lg text-white fw-bold py-3"
+                    style="background-color: #28a745; border-radius: 15px; border: none; box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3)"
+                    [disabled]="!isBookingFormValid() || isLoading"
+                    (click)="onSubmitBooking()"
+                  >
+                    <span *ngIf="!isLoading">Confirmer la réservation</span>
+                    <span *ngIf="isLoading">
+                      <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                      Traitement en cours...
+                    </span>
+                  </button>
+                  <button 
+                    class="btn btn-outline-primary btn-lg"
+                    (click)="onGoToRecommendations()"
+                    [disabled]="isLoading"
+                  >
+                    ← Retour aux recommandations
+                  </button>
+                </div>
+
+                <div class="mt-4" *ngIf="isBookingSubmitted && showPaymentOptions && !isLoading">
+                  <div class="card border-success" style="border-radius: 15px;">
+                    <div class="card-header bg-success text-white text-center">
+                      <h5 class="mb-0">🎉 Réservation confirmée ! Choisissez votre méthode de paiement</h5>
+                    </div>
+                    <div class="card-body p-4">
+                      <div class="row g-3">
+                        <div class="col-md-6">
+                          <button 
+                            class="btn btn-outline-primary btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4"
+                            style="border-radius: 15px; min-height: 120px;"
+                            (click)="selectPaymentMethod('stripe')"
+                            [disabled]="isLoading"
+                          >
+                            <i class="fas fa-credit-card fa-2x mb-2"></i>
+                            <span class="fw-bold">Carte bancaire</span>
+                            <small class="text-muted">Via Stripe</small>
+                          </button>
+                        </div>
+                        <div class="col-md-6">
+                          <button 
+                            class="btn btn-outline-success btn-lg w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4"
+                            style="border-radius: 15px; min-height: 120px;"
+                            (click)="selectPaymentMethod('wave')"
+                            [disabled]="isLoading"
+                          >
+                            <i class="fas fa-mobile-alt fa-2x mb-2"></i>
+                            <span class="fw-bold">Mobile Money</span>
+                            <small class="text-muted">Via Wave</small>
+                          </button>
+                        </div>
+                      </div>
+                      <!-- Ajoutez cette section dans votre template booking.component.html, après la section des options de paiement -->
+
+<!-- Formulaire de paiement Stripe -->
+<div class="mt-4" *ngIf="showStripeForm && !isLoading">
+  <div class="card border-primary" style="border-radius: 15px;">
+    <div class="card-header bg-primary text-white text-center">
+      <h5 class="mb-0">💳 Paiement par carte bancaire</h5>
+    </div>
+    <div class="card-body p-4">
+      <div class="text-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="fw-bold">Montant à payer :</span>
+          <span class="fs-4 fw-bold text-primary">{{calculateTotalPrice()}}</span>
+        </div>
+      </div>
+
+      <!-- Champ Stripe Card Element -->
+      <div class="mb-4">
+        <label class="form-label fw-bold">Informations de la carte</label>
+        <div id="card-element" class="form-control p-3" style="height: 60px; border-radius: 8px;">
+          <!-- Stripe Elements s'injectera ici -->
+        </div>
+        <div id="card-errors" role="alert" class="text-danger mt-2"></div>
+      </div>
+
+      <!-- Messages d'erreur Stripe -->
+      <div *ngIf="errorMessage" class="alert alert-danger mb-3">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Messages de succès Stripe -->
+      <div *ngIf="successMessage" class="alert alert-success mb-3">
+        {{ successMessage }}
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="d-grid gap-2">
+        <button 
+          class="btn btn-primary btn-lg"
+          [disabled]="isProcessingPayment"
+          (click)="processStripePayment()"
+        >
+          <span *ngIf="!isProcessingPayment">
+            <i class="fas fa-lock me-2"></i>
+            Payer {{calculateTotalPrice()}}
+          </span>
+          <span *ngIf="isProcessingPayment">
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+            Traitement du paiement...
+          </span>
+        </button>
+        
+        <button 
+          class="btn btn-outline-secondary"
+          [disabled]="isProcessingPayment"
+          (click)="backToPaymentOptions()"
+        >
+          ← Changer de méthode de paiement
+        </button>
+      </div>
+
+      <!-- Informations de sécurité -->
+      <div class="mt-3 text-center">
+        <small class="text-muted">
+          <i class="fas fa-shield-alt me-1"></i>
+          Paiement sécurisé par Stripe SSL 256-bit
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+                      
+                      <div class="text-center mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                          <span class="fw-bold">Montant à payer :</span>
+                          <span class="fs-4 fw-bold text-success">{{calculateTotalPrice()}}</span>
+                        </div>
+                        
+                        <button 
+                          class="btn btn-outline-secondary"
+                          (click)="cancelPayment()"
+                          [disabled]="isLoading"
+                        >
+                          Annuler le paiement
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Boutons post-réservation -->
+                <div class="d-grid gap-3 mt-4" *ngIf="isBookingSubmitted && !showPaymentOptions && successMessage">
+                  <button 
+                    class="btn btn-success btn-lg disabled"
+                  >
+                    ✓ Réservation et paiement confirmés !
+                  </button>
+                  <button 
+                    class="btn btn-outline-primary btn-lg"
+                    (click)="onGoToRecommendations()"
+                  >
+                    ← Nouvelle recherche
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

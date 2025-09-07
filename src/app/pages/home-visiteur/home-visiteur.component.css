@@ -1,0 +1,285 @@
+/* Variables CSS personnalisées pour cohérence avec le design existant */
+:root {
+  --primary-color: #2563eb;
+  --primary-dark: #1d4ed8;
+  --secondary-color: #f59e0b;
+  --accent-color: #10b981;
+  --text-dark: #1f2937;
+  --text-light: #6b7280;
+  --bg-light: #f8fafc;
+}
+
+/* Styles généraux */
+.min-vh-50 {
+  min-height: 50vh;
+}
+
+/* Navigation */
+.navbar-brand {
+  font-size: 1.5rem;
+  letter-spacing: -0.5px;
+}
+
+.navbar {
+  padding: 1rem 0;
+  transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+  padding: 0.5rem 0;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100"><path d="M0,0 Q250,50 500,0 T1000,0 L1000,100 L0,100 Z" fill="rgba(255,255,255,0.05)"/></svg>') repeat-x bottom;
+  background-size: 1000px 100px;
+}
+
+.hero-illustration {
+  transition: transform 0.3s ease;
+}
+
+.hero-illustration:hover {
+  transform: translateY(-5px);
+}
+
+/* Cartes de destinations */
+.destination-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.destination-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15) !important;
+}
+
+.destination-image {
+  background: linear-gradient(45deg, #2563eb, #3b82f6);
+  transition: all 0.3s ease;
+}
+
+.destination-card:hover .destination-image {
+  background: linear-gradient(45deg, #1d4ed8, #2563eb);
+}
+
+/* Services */
+.service-icon {
+  transition: all 0.3s ease;
+}
+
+.card:hover .service-icon {
+  transform: scale(1.05);
+}
+
+.card {
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Boutons */
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+
+.btn-warning {
+  background-color: var(--secondary-color);
+  color: white;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.2);
+}
+
+.btn-warning:hover {
+  background-color: #d97706;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.btn-outline-primary {
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.btn-outline-light {
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.btn-outline-light:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: white;
+  color: white;
+}
+
+/* Sections */
+section {
+  position: relative;
+}
+
+.section-title {
+  position: relative;
+  display: inline-block;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: var(--secondary-color);
+  border-radius: 2px;
+}
+
+/* Footer */
+footer {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+}
+
+footer a {
+  transition: color 0.3s ease;
+}
+
+footer a:hover {
+  color: var(--secondary-color) !important;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+/* Styles responsive */
+@media (max-width: 768px) {
+  .hero-section {
+    text-align: center;
+  }
+  
+  .hero-section .display-4 {
+    font-size: 2rem;
+  }
+  
+  .hero-section .lead {
+    font-size: 1rem;
+  }
+  
+  .hero-illustration {
+    margin-top: 2rem;
+  }
+  
+  .section-title {
+    font-size: 1.75rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-section {
+    padding: 3rem 0;
+  }
+  
+  .hero-section .btn-lg {
+    display: block;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .destination-card,
+  .card {
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Styles pour les états de focus (accessibilité) */
+.btn:focus,
+.nav-link:focus,
+.dropdown-toggle:focus {
+  outline: 2px solid var(--secondary-color);
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Transitions pour les éléments interactifs */
+.nav-link,
+.dropdown-item,
+.card,
+.btn {
+  transition: all 0.3s ease;
+}
+
+/* Style pour les messages d'authentification */
+.auth-message {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+/* Loading states */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}

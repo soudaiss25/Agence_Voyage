@@ -1,65 +1,86 @@
 <!-- PAGE 1: PREFERENCES -->
-<div *ngIf="currentPage === 'preferences'" class="container-fluid min-vh-100" style="background: linear-gradient(135deg, #0d6efd 0%)">
+<div *ngIf="currentPage === 'preferences'" class="container-fluid min-vh-100" style="background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%)">
   <div class="container py-5">
     <div class="row justify-content-center">
       <div class="col-lg-8">
         <div class="text-center text-white mb-5">
-        
+          <h1 class="display-4 fw-bold mb-3">Votre Voyage Idéal</h1>
           <p class="lead">Dites-nous vos préférences et nous vous proposerons le voyage parfait</p>
         </div>
 
         <div class="card shadow-lg border-0" style="border-radius: 20px">
           <div class="card-body p-5">
-            <div class="row g-4">
+            
+            <!-- Messages -->
+            <div *ngIf="errorMessage" class="alert alert-danger mb-4" role="alert">
+              <button type="button" class="btn-close" aria-label="Close" (click)="clearMessages()"></button>
+              {{ errorMessage }}
+            </div>
+
+            <div *ngIf="successMessage && !errorMessage" class="alert alert-success mb-4" role="alert">
+              <button type="button" class="btn-close" aria-label="Close" (click)="clearMessages()"></button>
+              {{ successMessage }}
+            </div>
+
+            <!-- Spinner de chargement -->
+            <div *ngIf="isLoading" class="text-center mb-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement...</span>
+              </div>
+              <p class="mt-2">Génération de vos recommandations personnalisées...</p>
+            </div>
+
+            <div class="row g-4" [style.opacity]="isLoading ? '0.5' : '1'">
               <!-- Climat -->
               <div class="col-md-6">
                 <label class="form-label fw-bold text-dark mb-3">
-                   Climat préféré
+                  🌤️ Climat préféré *
                 </label>
                 <div class="d-grid gap-2">
-                  <div *ngFor="let climate of climateOptions" class="form-check">
+                  <div *ngFor="let climat of climatOptions" class="form-check">
                     <input 
                       class="form-check-input" 
                       type="radio" 
-                      name="climate" 
-                      [id]="climate"
-                      [value]="climate"
-                      (change)="onClimateChange(climate)"
+                      name="climat" 
+                      [id]="climat"
+                      [value]="climat"
+                      [checked]="preferences.climat === climat"
+                      (change)="onClimatChange(climat)"
+                      [disabled]="isLoading"
                     />
-                    <label class="form-check-label" [for]="climate">{{climate}}</label>
+                    <label class="form-check-label" [for]="climat">{{climat}}</label>
                   </div>
                 </div>
               </div>
 
-              <!-- Zone -->
+              <!-- Type de Voyage -->
               <div class="col-md-6">
                 <label class="form-label fw-bold text-dark mb-3">
-                   Zone géographique
+                  🎯 Type de voyage *
                 </label>
-                <div class="d-grid gap-2">
-                  <div *ngFor="let zone of zoneOptions" class="form-check">
-                    <input 
-                      class="form-check-input" 
-                      type="radio" 
-                      name="zone" 
-                      [id]="zone"
-                      [value]="zone"
-                      (change)="onZoneChange(zone)"
-                    />
-                    <label class="form-check-label" [for]="zone">{{zone}}</label>
-                  </div>
-                </div>
+                <select 
+                  class="form-select"
+                  [value]="preferences.typeVoyage_id"
+                  (change)="onTypeVoyageChange($event)"
+                  [disabled]="isLoading"
+                >
+                  <option value="0">Choisir un type</option>
+                  <option *ngFor="let type of typesVoyage" [value]="type.id">
+                    {{type.libelle}}
+                  </option>
+                </select>
               </div>
 
               <!-- Langue -->
               <div class="col-md-6">
                 <label class="form-label fw-bold text-dark mb-3">
-                   Langue parlée
+                  🗣️ Langue parlée *
                 </label>
                 <select 
                   class="form-select"
-                  [(ngModel)]="preferences.language"
-                  (change)="onLanguageChange(preferences.language)"
+                  [value]="preferences.langueParlee"
+                  (change)="onLanguageChange($event)"
+                  [disabled]="isLoading"
                 >
                   <option value="">Choisir une langue</option>
                   <option *ngFor="let lang of languageOptions" [value]="lang.value">
@@ -71,12 +92,13 @@
               <!-- Budget -->
               <div class="col-md-6">
                 <label class="form-label fw-bold text-dark mb-3">
-                   Budget
+                  💰 Budget *
                 </label>
                 <select 
                   class="form-select"
-                  [(ngModel)]="preferences.budget"
-                  (change)="onBudgetChange(preferences.budget)"
+                  [value]="preferences.budget"
+                  (change)="onBudgetChange($event)"
+                  [disabled]="isLoading"
                 >
                   <option value="">Choisir un budget</option>
                   <option *ngFor="let budget of budgetOptions" [value]="budget.value">
@@ -85,44 +107,25 @@
                 </select>
               </div>
 
-              <!-- Durée -->
+              <!-- Activité principale -->
               <div class="col-12">
                 <label class="form-label fw-bold text-dark mb-3">
-                   Durée du voyage
+                  🎨 Activité principale préférée *
                 </label>
                 <div class="row">
-                  <div *ngFor="let duration of durationOptions" class="col-6 col-md-3">
+                  <div *ngFor="let activite of activiteOptions" class="col-6 col-md-4">
                     <div class="form-check">
                       <input 
                         class="form-check-input" 
                         type="radio" 
-                        name="duration" 
-                        [id]="duration"
-                        [value]="duration"
-                        (change)="onDurationChange(duration)"
+                        name="activite"
+                        [id]="activite"
+                        [value]="activite"
+                        [checked]="preferences.activite === activite"
+                        (change)="onActiviteChange(activite)"
+                        [disabled]="isLoading"
                       />
-                      <label class="form-check-label" [for]="duration">{{duration}}</label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Activités -->
-              <div class="col-12">
-                <label class="form-label fw-bold text-dark mb-3">
-                   Activités préférées
-                </label>
-                <div class="row">
-                  <div *ngFor="let activity of activityOptions" class="col-6 col-md-4">
-                    <div class="form-check">
-                      <input 
-                        class="form-check-input" 
-                        type="checkbox" 
-                        [id]="activity"
-                        [checked]="isActivitySelected(activity)"
-                        (change)="onActivityToggle(activity)"
-                      />
-                      <label class="form-check-label" [for]="activity">{{activity}}</label>
+                      <label class="form-check-label" [for]="activite">{{activite}}</label>
                     </div>
                   </div>
                 </div>
@@ -133,10 +136,14 @@
               <button 
                 class="btn btn-lg px-5 py-3 text-white fw-bold"
                 style="background-color: #0d6efd; border-radius: 50px; border: none; box-shadow: 0 8px 25px rgba(13, 110, 253, 0.3)"
-                (click)="goToRecommendations()"
+                (click)="saveAndGenerateRecommendations()"
+                [disabled]="isLoading"
               >
-                Voir mes recommandations
-                ➤
+                <span *ngIf="!isLoading">Voir mes recommandations ➤</span>
+                <span *ngIf="isLoading">
+                  <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Génération en cours...
+                </span>
               </button>
             </div>
           </div>
@@ -154,20 +161,72 @@
         🎯 Nos Recommandations Pour Vous
       </h1>
       <p class="lead text-muted">Basées sur vos préférences personnalisées</p>
+      
+      <!-- Messages sur la page des recommandations -->
+      <div *ngIf="successMessage" class="alert alert-success mx-auto" style="max-width: 600px;" role="alert">
+        {{ successMessage }}
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger mx-auto" style="max-width: 600px;" role="alert">
+        {{ errorMessage }}
+      </div>
+      
+      <!-- Résumé des préférences -->
+      <div class="bg-white rounded-3 p-3 d-inline-block shadow-sm mb-4" *ngIf="!errorMessage">
+        <small class="text-muted">
+          <strong>Vos critères :</strong> 
+          {{preferences.climat}} • {{getSelectedTypeVoyageName()}} • {{preferences.langueParlee}} • {{preferences.budget}} • {{preferences.activite}}
+        </small>
+      </div>
     </div>
 
-    <div class="row g-4">
-      <div *ngFor="let trip of recommendations" class="col-lg-4 col-md-6">
-        <div [ngClass]="getCardClass()" style="border-radius: 20px; overflow: hidden">
-          <!-- Header avec emoji -->
-          <div class="card-header text-center p-4" style="background-color: #0d6efd; color: white">
-            <div style="font-size: 4rem">{{trip.image_placeholder}}</div>
-            <h4 class="fw-bold mb-0">{{trip.destination}}</h4>
+    <!-- Spinner pour le chargement des recommandations -->
+    <div *ngIf="isLoading" class="text-center mb-5">
+      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Chargement des recommandations...</span>
+      </div>
+      <p class="mt-3">Recherche des meilleures destinations pour vous...</p>
+    </div>
+
+    <!-- Message si aucune recommandation -->
+    <div *ngIf="!isLoading && recommendations.length === 0 && !errorMessage" class="text-center">
+      <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">Aucune recommandation trouvée</h4>
+        <p>Nous n'avons pas trouvé de destinations correspondant exactement à vos critères. Essayez de modifier vos préférences.</p>
+        <hr>
+        <p class="mb-0">
+          <button class="btn btn-primary" (click)="goToPreferences()">
+            Modifier mes préférences
+          </button>
+        </p>
+      </div>
+    </div>
+
+    <!-- Liste des recommandations -->
+    <div class="row g-4" *ngIf="!isLoading && recommendations.length > 0">
+      <div *ngFor="let trip of recommendations; let i = index" class="col-lg-4 col-md-6">
+        <div [ngClass]="getCardClass()" style="border-radius: 20px; overflow: hidden; position: relative">
+          
+          <!-- Badge de score (pour debug) -->
+          <div class="position-absolute top-0 end-0 m-2" style="z-index: 10">
+           <span class="badge bg-success">Score: {{ trip.score }}</span>
           </div>
+
+          <!-- Header avec emoji -->
+         <div class="card-header text-center p-4" style="background: linear-gradient(135deg, #0d6efd, #6610f2); color: white">
+  <!-- 👉 Affiche la photo si dispo, sinon l’emoji -->
+  <img *ngIf="trip.image" [src]="trip.image" class="img-fluid mb-3" 
+       style="max-height: 200px; object-fit: cover; border-radius: 10px;" />
+  <div *ngIf="!trip.image" style="font-size: 4rem">{{trip.image_placeholder}}</div>
+
+  <h4 class="fw-bold mb-0">{{trip.destination}}</h4>
+  <small class="opacity-75">{{trip.pays}}</small>
+</div>
+
 
           <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <span class="badge bg-success px-3 py-2">{{trip.climate}}</span>
+              <span class="badge bg-success px-3 py-2">{{trip.climat}}</span>
               <div class="d-flex align-items-center">
                 <span *ngFor="let star of getStarArray(trip.rating)" class="text-warning">⭐</span>
                 <span class="fw-bold ms-1">{{trip.rating}}</span>
@@ -176,8 +235,8 @@
 
             <p class="text-muted mb-3">{{trip.description}}</p>
 
-            <div class="mb-3">
-              <h6 class="fw-bold mb-2">Points forts :</h6>
+            <div class="mb-3" *ngIf="trip.highlights && trip.highlights.length > 0">
+              <h6 class="fw-bold mb-2">Activités disponibles :</h6>
               <div class="row g-1">
                 <div *ngFor="let highlight of trip.highlights" class="col-6">
                   <small class="d-flex align-items-center">
@@ -191,7 +250,7 @@
               <div class="col-6">
                 <div class="border-end">
                   <h5 class="fw-bold mb-0" style="color: #0d6efd">{{trip.price}}</h5>
-                  <small class="text-muted">Prix total</small>
+                  <small class="text-muted">Prix estimé</small>
                 </div>
               </div>
               <div class="col-6">
@@ -199,19 +258,25 @@
                 <small class="text-muted">Durée</small>
               </div>
             </div>
+
+            <div class="mb-2">
+              <small class="text-muted">
+                <strong>Langue :</strong> {{trip.language}}
+              </small>
+            </div>
           </div>
 
           <div class="card-footer bg-transparent p-4">
             <div class="d-grid gap-2">
-              <button 
-                class="btn text-white fw-bold py-3"
-                style="background-color: #0d6efd; border-radius: 15px; border: none"
-                (click)="goToValidation(trip)"
-              >
-                Choisir ce voyage
-              </button>
+             <button 
+              class="btn text-white fw-bold py-3"
+              style="background-color: #0d6efd; border-radius: 15px; border: none"
+              (click)="selectTrip(trip)"
+            >
+              Choisir ce voyage
+            </button>
               <button class="btn btn-outline-secondary" (click)="addToFavorites(trip)">
-                ❤️ Ajouter aux favoris
+                 Ajouter aux favoris
               </button>
             </div>
           </div>
@@ -229,175 +294,11 @@
     </div>
   </div>
 </div>
-
-<!-- PAGE 3: VALIDATION -->
-<div *ngIf="currentPage === 'validation'" class="container-fluid min-vh-100" style="background: linear-gradient(135deg, #0d6efd )">
-  <div class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-lg-10">
-        <div class="text-center text-white mb-5">
-          <h1 class="display-4 fw-bold mb-3"> Finaliser Votre Réservation</h1>
-          <p class="lead">Plus qu'une étape pour concrétiser votre voyage de rêve !</p>
-        </div>
-
-        <div class="row g-4">
-          <!-- Récapitulatif du voyage -->
-          <div class="col-lg-4">
-            <div class="card shadow-lg border-0 h-100" style="border-radius: 20px">
-              <div class="card-header text-center p-4" style="background-color: #0d6efd; color: white; border-radius: 20px 20px 0 0">
-                <h4 class="fw-bold mb-0">Récapitulatif</h4>
-              </div>
-              <div class="card-body p-4" *ngIf="selectedTrip">
-                <div class="text-center mb-4">
-                  <div style="font-size: 3rem">{{selectedTrip.image_placeholder}}</div>
-                  <h5 class="fw-bold">{{selectedTrip.destination}}</h5>
-                </div>
-                
-                <div class="mb-3">
-                  <div class="d-flex justify-content-between">
-                    <span>Destination :</span>
-                    <strong>{{selectedTrip.destination}}</strong>
-                  </div>
-                </div>
-                
-                <div class="mb-3">
-                  <div class="d-flex justify-content-between">
-                    <span>Durée :</span>
-                    <strong>{{selectedTrip.duration}}</strong>
-                  </div>
-                </div>
-                
-                <div class="mb-3">
-                  <div class="d-flex justify-content-between">
-                    <span>Prix par personne :</span>
-                    <strong>{{selectedTrip.price}}</strong>
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <div class="d-flex justify-content-between">
-                    <span>Nombre de voyageurs :</span>
-                    <strong>{{bookingData.travelers}}</strong>
-                  </div>
-                </div>
-                
-                <hr/>
-                
-                <div class="d-flex justify-content-between">
-                  <span class="fw-bold">Total :</span>
-                  <strong style="color: #0d6efd; font-size: 1.2rem">{{calculateTotalPrice()}}</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Formulaire de réservation -->
-          <div class="col-lg-8">
-            <div class="card shadow-lg border-0" style="border-radius: 20px">
-              <div class="card-body p-5">
-                <h4 class="fw-bold mb-4" style="color: #0d6efd">
-                   Informations de réservation
-                </h4>
-
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold">Prénom *</label>
-                    <input 
-                      type="text" 
-                      class="form-control form-control-lg"
-                      [(ngModel)]="bookingData.firstName"
-                    />
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold">Nom *</label>
-                    <input 
-                      type="text" 
-                      class="form-control form-control-lg"
-                      [(ngModel)]="bookingData.lastName"
-                    />
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold">
-                       Email *
-                    </label>
-                    <input 
-                      type="email" 
-                      class="form-control form-control-lg"
-                      [(ngModel)]="bookingData.email"
-                    />
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold">
-                       Téléphone *
-                    </label>
-                    <input 
-                      type="tel" 
-                      class="form-control form-control-lg"
-                      [(ngModel)]="bookingData.phone"
-                    />
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold">Nombre de voyageurs</label>
-                    <select 
-                      class="form-select form-select-lg"
-                      [(ngModel)]="bookingData.travelers"
-                    >
-                      <option *ngFor="let num of travelerOptions" [value]="num">
-                        {{num}} personne{{num > 1 ? 's' : ''}}
-                      </option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold">
-                       Date de départ souhaitée
-                    </label>
-                    <input 
-                      type="date" 
-                      class="form-control form-control-lg"
-                      [(ngModel)]="bookingData.departureDate"
-                    />
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label fw-bold">Demandes spéciales (optionnel)</label>
-                    <textarea 
-                      class="form-control" 
-                      rows="3"
-                      placeholder="Anniversaire, régime alimentaire, accessibilité..."
-                      [(ngModel)]="bookingData.specialRequests"
-                    ></textarea>
-                  </div>
-                </div>
-
-                <div class="mt-4 p-3 bg-light rounded">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="terms"/>
-                    <label class="form-check-label" for="terms">
-                      J'accepte les <a href="#" style="color: #0d6efd">conditions générales</a> et la <a href="#" style="color: #0d6efd">politique de confidentialité</a>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="d-grid gap-3 mt-4">
-                  <button 
-                    class="btn btn-lg text-white fw-bold py-3"
-                    style="background-color: #28a745; border-radius: 15px; border: none; box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3)"
-                    [disabled]="!isBookingFormValid()"
-                    (click)="onSubmitBooking()"
-                  >
-                    Procéder au paiement
-                  </button>
-                  <button 
-                    class="btn btn-outline-primary btn-lg"
-                    (click)="currentPage = 'recommendations'"
-                  >
-                    ← Retour aux recommandations
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- PAGE 3: BOOKING -->
+<div *ngIf="currentPage === 'booking'" class="container-fluid min-vh-100">
+  <app-booking 
+    [selectedTrip]="selectedTrip"
+    (goToRecommendations)="goToRecommendations()"
+    (bookingCompleted)="onBookingCompleted()"
+  ></app-booking>
 </div>

@@ -1,0 +1,372 @@
+<!-- src/app/components/toutes-destination/toutes-destination.component.html -->
+<div class="container-fluid bg-light min-vh-100 py-5">
+  <div class="container">
+    
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+      <h1 class="display-4 fw-bold text-primary mb-3">
+        <i class="fas fa-globe-americas me-3"></i>
+        Toutes nos Destinations
+      </h1>
+      <p class="lead text-muted">
+        Découvrez nos destinations de rêve et choisissez votre prochaine aventure
+      </p>
+    </div>
+
+    <!-- Filtres Section -->
+    <div class="card shadow-sm mb-5">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-filter me-2"></i>
+          Filtrer les destinations
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          
+          <!-- Recherche par nom -->
+          <div class="col-md-6 col-lg-4">
+            <label for="searchInput" class="form-label fw-semibold">
+              <i class="fas fa-search me-1"></i>
+              Rechercher
+            </label>
+            <input 
+              type="text" 
+              id="searchInput"
+              class="form-control" 
+              placeholder="Nom de la destination..." 
+              [(ngModel)]="filters.search"
+              (input)="onSearchChange()"
+            >
+          </div>
+
+          <!-- Filtre par pays -->
+          <div class="col-md-6 col-lg-4">
+            <label for="paysSelect" class="form-label fw-semibold">
+              <i class="fas fa-flag me-1"></i>
+              Pays
+            </label>
+            <select 
+              id="paysSelect"
+              class="form-select" 
+              [(ngModel)]="filters.pays"
+              (change)="onPaysChange()"
+            >
+              <option value="">Tous les pays</option>
+              <option *ngFor="let pays of paysOptions" [value]="pays">{{ pays }}</option>
+            </select>
+          </div>
+
+          <!-- Prix minimum -->
+          <div class="col-md-6 col-lg-2">
+            <label for="prixMin" class="form-label fw-semibold">
+              <i class="fas fa-money-bill-wave me-1"></i>
+              Prix min
+            </label>
+            <input 
+              type="number" 
+              id="prixMin"
+              class="form-control" 
+              placeholder="0" 
+              [(ngModel)]="filters.prixMin"
+              (input)="onPriceChange()"
+              min="0"
+            >
+          </div>
+
+          <!-- Prix maximum -->
+          <div class="col-md-6 col-lg-2">
+            <label for="prixMax" class="form-label fw-semibold">Prix max</label>
+            <input 
+              type="number" 
+              id="prixMax"
+              class="form-control" 
+              placeholder="∞" 
+              [(ngModel)]="filters.prixMax"
+              (input)="onPriceChange()"
+              min="0"
+            >
+          </div>
+        </div>
+
+        <!-- Actions filtres -->
+        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+          <button 
+            type="button" 
+            class="btn btn-outline-secondary"
+            (click)="resetFilters()"
+          >
+            <i class="fas fa-undo me-1"></i>
+            Réinitialiser
+          </button>
+          
+          <small class="text-muted">
+            <i class="fas fa-info-circle me-1"></i>
+            {{ filteredDestinations.length }} destination(s) trouvée(s)
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message d'erreur -->
+    <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+    </div>
+
+    <!-- Indicateur de chargement -->
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-3 text-muted">Chargement des destinations...</p>
+    </div>
+
+    <!-- Message si aucune destination -->
+    <div *ngIf="!isLoading && filteredDestinations.length === 0" class="text-center py-5">
+      <div class="mb-4">
+        <i class="fas fa-search text-muted" style="font-size: 4rem;"></i>
+      </div>
+      <h4 class="text-muted mb-3">Aucune destination trouvée</h4>
+      <p class="text-muted mb-4">
+        Essayez de modifier vos critères de recherche ou 
+        <button class="btn btn-link p-0" (click)="resetFilters()">réinitialisez les filtres</button>
+      </p>
+    </div>
+
+    <!-- Grille des destinations -->
+    <div *ngIf="!isLoading && filteredDestinations.length > 0">
+      
+      <!-- Statistiques -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="fas fa-map-marked-alt text-primary me-2"></i>
+              Nos destinations
+            </h5>
+            <small class="text-muted">
+              Page {{ currentPage }} sur {{ totalPages }}
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cartes des destinations -->
+      <div class="row g-4">
+        <div *ngFor="let destination of getPaginatedDestinations()" class="col-lg-4 col-md-6">
+          
+          <div class="card h-100 shadow-sm border-0 destination-card">
+            
+            <!-- Image de la destination -->
+            <div class="position-relative overflow-hidden" style="height: 250px;">
+             <img 
+  [src]="getImageUrl(destination)" 
+  [alt]="destination.nom"
+  class="card-img-top h-100 w-100"
+  style="object-fit: cover; transition: transform 0.3s ease;"
+  (error)="onImageError($event)"
+>
+
+              <!-- Badge prix -->
+              <div class="position-absolute top-0 end-0 m-3">
+                <span class="badge bg-primary fs-6 px-3 py-2">
+                  {{ destination.prix ? (destination.prix | number:'1.0-0') + ' FCFA' : 'Prix sur demande' }}
+                </span>
+              </div>
+              
+              <!-- Badge pays -->
+              <div *ngIf="destination.pays" class="position-absolute bottom-0 start-0 m-3">
+                <span class="badge bg-dark bg-opacity-75 fs-6 px-3 py-2">
+                  <i class="fas fa-map-marker-alt me-1"></i>
+                  {{ destination.pays }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Contenu de la carte -->
+            <div class="card-body d-flex flex-column">
+              
+              <!-- Nom de la destination -->
+              <h5 class="card-title text-primary fw-bold mb-3">
+                <i class="fas fa-mountain text-success me-2"></i>
+                {{ destination.nom }}
+              </h5>
+
+              <!-- Description -->
+              <p *ngIf="destination.description" class="card-text text-muted mb-3 flex-grow-1">
+                {{ truncateText(destination.description, 120) }}
+              </p>
+
+              <!-- Informations détaillées -->
+              <div class="mb-3">
+                
+                <!-- Climat -->
+                <div *ngIf="destination.climat" class="mb-2">
+                  <small class="text-muted">
+                    <i class="fas fa-thermometer-half text-info me-1"></i>
+                    <strong>Climat:</strong> {{ destination.climat }}
+                  </small>
+                </div>
+
+                <!-- Langue locale -->
+                <div *ngIf="destination.langueLocale" class="mb-2">
+                  <small class="text-muted">
+                    <i class="fas fa-language text-warning me-1"></i>
+                    <strong>Langue:</strong> {{ destination.langueLocale }}
+                  </small>
+                </div>
+
+                <!-- Activités -->
+                <div *ngIf="destination.activites && destination.activites.length > 0" class="mb-2">
+                  <small class="text-muted">
+                    <i class="fas fa-hiking text-success me-1"></i>
+                    <strong>Activités:</strong> {{ getFormattedActivities(destination.activites) }}
+                  </small>
+                </div>
+
+                <!-- Meilleure période -->
+                <div *ngIf="destination.meilleurePeriode" class="mb-2">
+                  <small class="text-muted">
+                    <i class="fas fa-calendar-alt text-primary me-1"></i>
+                    <strong>Meilleure période:</strong> {{ destination.meilleurePeriode }}
+                  </small>
+                </div>
+              </div>
+
+              <!-- Bouton d'action -->
+              <div class="mt-auto">
+                <button 
+  type="button" 
+  class="btn btn-primary w-100 fw-semibold py-2"
+  (click)="choisirDestination(destination)"  
+  [disabled]="!isUserLoggedIn()"
+  [title]="!isUserLoggedIn() ? 'Vous devez être connecté pour choisir une destination' : ''"
+>
+  <i class="fas fa-plane-departure me-2"></i>
+  {{ isUserLoggedIn() ? 'Réserver cette destination' : 'Connectez-vous d\'abord' }}
+</button>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <nav *ngIf="totalPages > 1" aria-label="Navigation des destinations" class="mt-5">
+        <ul class="pagination justify-content-center">
+          
+          <!-- Bouton Précédent -->
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button 
+              class="page-link" 
+              (click)="goToPage(currentPage - 1)"
+              [disabled]="currentPage === 1"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+          </li>
+
+          <!-- Numéros de pages -->
+          <li *ngFor="let page of getPaginationArray()" 
+              class="page-item" 
+              [class.active]="page === currentPage">
+            <button class="page-link" (click)="goToPage(page)">
+              {{ page }}
+            </button>
+          </li>
+
+          <!-- Bouton Suivant -->
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button 
+              class="page-link" 
+              (click)="goToPage(currentPage + 1)"
+              [disabled]="currentPage === totalPages"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+    </div>
+   
+
+    <!-- Message de connexion requis -->
+    <div *ngIf="!isUserLoggedIn()" class="alert alert-info mt-4" role="alert">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-info-circle fa-2x text-info me-3"></i>
+        <div>
+          <h6 class="alert-heading mb-1">Connexion requise</h6>
+          <p class="mb-0">
+            Vous devez être connecté pour pouvoir choisir une destination et effectuer une réservation.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- Styles CSS intégrés pour les animations -->
+<style>
+.destination-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.destination-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+
+.destination-card:hover img {
+  transform: scale(1.05);
+}
+
+.badge {
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(45deg, #0056b3, #004085);
+  transform: translateY(-1px);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.page-link {
+  color: #007bff;
+  border: 1px solid #dee2e6;
+}
+
+.page-link:hover {
+  color: #0056b3;
+  background-color: #e9ecef;
+}
+
+.page-item.active .page-link {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.alert {
+  border: none;
+  border-radius: 10px;
+}
+</style>

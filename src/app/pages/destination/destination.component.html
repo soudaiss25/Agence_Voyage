@@ -1,0 +1,497 @@
+
+<!-- HEADER ADMIN -->
+<div class="bg-white border-bottom">
+  <div class="container-fluid">
+    <div class="row align-items-center py-3">
+      <div class="col-md-6">
+        <h1 class="mb-0 fw-bold text-primary">Dashboard Administrateur</h1>
+      </div>
+      <div class="col-md-6 text-end">
+        <button class="btn btn-outline-primary me-2" (click)="refreshData()" [disabled]="isLoading">
+          <i class="fas fa-sync-alt" [class.fa-spin]="isLoading"></i> 
+          {{isLoading ? 'Chargement...' : 'Actualiser'}}
+        </button>
+        <button class="btn btn-outline-danger">
+          <i class="fas fa-sign-out-alt" (click)="logout()"></i> Déconnexion
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NAVIGATION SIDEBAR -->
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-2 bg-white border-end p-0">
+      <div class="nav flex-column p-3" style="min-height: calc(100vh - 80px)">
+        <button class="nav-link-custom text-start mb-2">
+          <i class="fas fa-chart-dashboard me-2"></i>
+          Vue d'ensemble
+        </button>
+        <button class="nav-link-custom text-start mb-2">
+          <i class="fas fa-calendar-alt me-2"></i>
+          Réservations
+        </button>
+        <button class="nav-link-custom text-start mb-2">
+          <i class="fas fa-users me-2"></i>
+          Clients
+        </button>
+        <button class="nav-link-custom text-start mb-2 active">
+          <i class="fas fa-map-marked-alt me-2"></i>
+          Destinations
+        </button>
+        <button class="nav-link-custom text-start mb-2">
+          <i class="fas fa-cog me-2"></i>
+          Paramètres
+        </button>
+      </div>
+    </div>
+
+    <div class="col-md-10 p-4" style="background-color: #f8fafc;">
+      
+      <!-- HEADER PAGE -->
+      <div class="row mb-4">
+        <div class="col-md-8">
+          <h2 class="fw-bold">Gestion des Destinations</h2>
+          <p class="text-muted mb-0">Gérez vos destinations touristiques</p>
+        </div>
+        <div class="col-md-4 text-end">
+          <button class="btn btn-success me-2" (click)="openAddModal()">
+            <i class="fas fa-plus me-2"></i>
+            Ajouter
+          </button>
+          <button class="btn btn-outline-primary" (click)="exportDestinations()">
+            <i class="fas fa-download me-2"></i>
+            Exporter
+          </button>
+        </div>
+      </div>
+
+      <!-- FILTRES -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Pays</label>
+              <select class="form-select" [(ngModel)]="filters.country" (change)="filterDestinations()">
+                <option value="">Tous les pays</option>
+                <option *ngFor="let country of countries" [value]="country">{{country}}</option>
+              </select>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label fw-semibold">Recherche</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Nom, pays, description..."
+                [(ngModel)]="filters.search"
+                (keyup)="filterDestinations()"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOADING SPINNER -->
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-2 text-muted">Chargement des destinations...</p>
+      </div>
+
+      <!-- LISTE DES DESTINATIONS -->
+      <div class="row g-4" *ngIf="!isLoading && filteredDestinations.length > 0; else noResults">
+        <div *ngFor="let destination of paginatedDestinations" class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="mb-0 fw-bold">{{getDisplayName(destination)}}</h5>
+                <span class="badge bg-primary rounded-pill">
+                  ID: {{destination.id}}
+                </span>
+              </div>
+              
+              <p class="text-muted mb-2">
+                <i class="fas fa-map-marker-alt me-1"></i>
+                {{getDisplayCountry(destination)}} • {{getDisplayClimate(destination)}}
+              </p>
+              <img *ngIf="destination.photo" 
+     [src]="getPhotoUrl(destination.photo)" 
+     class="card-img-top" 
+     style="max-height: 200px; object-fit: cover;">
+
+              <div class="mb-3" *ngIf="destination.langueLocale">
+                <small class="text-muted">
+                  <i class="fas fa-language me-1"></i>
+                  {{destination.langueLocale}}
+                </small>
+              </div>
+      <div class="mb-2" *ngIf="destination.typeVoyage">
+  <span class="badge bg-info text-dark">
+    {{ destination.typeVoyage.libelle }}
+  </span>
+</div>
+
+              
+              <p class="small text-muted mb-3">{{getDisplayDescription(destination)}}</p>
+              
+              <div class="row text-center mb-3">
+                <div class="col-4">
+                  <div class="fw-bold text-info">{{getActivitiesCount(destination)}}</div>
+                  <small class="text-muted">Activités</small>
+                </div>
+                <div class="col-4" *ngIf="destination.meilleurePeriode">
+                  <div class="fw-bold text-warning">
+                    <i class="fas fa-calendar"></i>
+                  </div>
+                  <small class="text-muted">{{destination.meilleurePeriode}}</small>
+                </div>
+                <div class="col-4">
+                  <div class="fw-bold text-success">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                  <small class="text-muted">Disponible</small>
+                </div>
+              </div>
+              
+              <!-- ACTIVITÉS -->
+              <div class="mb-3" *ngIf="destination.activites && destination.activites.length > 0">
+                <div class="d-flex flex-wrap gap-1">
+                  <span *ngFor="let activite of destination.activites.slice(0, 3)" 
+                        class="badge bg-light text-dark small">
+                    {{activite}}
+                  </span>
+                  <span *ngIf="destination.activites.length > 3" 
+                        class="badge bg-secondary small">
+                    +{{destination.activites.length - 3}}
+                  </span>
+                </div>
+              </div>
+              <div class="mb-2" *ngIf="destination.prix !== undefined">
+  
+  <span class="fw-bold">{{ destination.prix }} FCFA</span>
+</div>
+
+              
+              <hr>
+              
+              <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                  Mis à jour: {{getFormattedDate(destination) | date:'dd/MM/yyyy'}}
+                </small>
+                <div class="btn-group btn-group-sm">
+                  <button 
+                    class="btn btn-outline-primary btn-sm"
+                    (click)="editDestination(destination)"
+                    title="Modifier"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button 
+                    class="btn btn-outline-danger btn-sm"
+                    (click)="confirmDelete(destination)"
+                    title="Supprimer"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NO RESULTS -->
+      <ng-template #noResults>
+        <div class="text-center py-5" *ngIf="!isLoading">
+          <div class="text-muted">
+            <i class="fas fa-search fa-3x mb-3"></i>
+            <h4>Aucune destination trouvée</h4>
+            <p>Essayez de modifier vos critères de recherche</p>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- PAGINATION -->
+      <nav class="mt-4" *ngIf="totalPages > 1 && !isLoading">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button class="page-link" (click)="changePage(currentPage - 1)">Précédent</button>
+          </li>
+          <li *ngFor="let page of getPageNumbers()" 
+              class="page-item" 
+              [class.active]="currentPage === page">
+            <button class="page-link" (click)="changePage(page)">{{page}}</button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button class="page-link" (click)="changePage(currentPage + 1)">Suivant</button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AJOUT/MODIFICATION -->
+<div class="modal fade" id="addDestinationModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-plus me-2"></i>
+          {{isEditing ? 'Modifier' : 'Ajouter'}} une Destination
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form #destinationForm="ngForm" (ngSubmit)="saveDestination()">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nom *</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                [(ngModel)]="currentDestination.nom"
+                name="nom"
+                required
+                placeholder="Ex: Santorin, Paris..."
+              >
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Pays</label>
+              <select 
+                class="form-select" 
+                [(ngModel)]="currentDestination.pays"
+                name="pays"
+              >
+                <option value="">Sélectionner...</option>
+                <option *ngFor="let country of countries" [value]="country">{{country}}</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Climat</label>
+              <select 
+                class="form-select" 
+                [(ngModel)]="currentDestination.climat"
+                name="climat"
+              >
+                <option value="">Sélectionner...</option>
+                <option value="Méditerranéen">Méditerranéen</option>
+                <option value="Tropical">Tropical</option>
+                <option value="Continental">Continental</option>
+                <option value="Montagnard">Montagnard</option>
+                <option value="Désertique">Désertique</option>
+                <option value="Océanique">Océanique</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Langue Locale</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                [(ngModel)]="currentDestination.langueLocale"
+                name="langueLocale"
+                placeholder="Ex: Français, Anglais..."
+              >
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Meilleure Période</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                [(ngModel)]="currentDestination.meilleurePeriode"
+                name="meilleurePeriode"
+                placeholder="Ex: Avril-Octobre"
+              >
+            </div>
+            <div class="col-md-4">
+  <label class="form-label">Prix (€)</label>
+  <input 
+    type="number" 
+    class="form-control" 
+    [(ngModel)]="currentDestination.prix"
+    name="prix"
+    min="0"
+    required
+  >
+</div>
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea 
+                class="form-control" 
+                rows="3"
+                [(ngModel)]="currentDestination.description"
+                name="description"
+                placeholder="Décrivez cette destination..."
+              ></textarea>
+            </div>
+            <div class="col-12">
+  <label class="form-label">Photo</label>
+  <input 
+    type="file" 
+    class="form-control" 
+    (change)="onFileSelected($event)"
+    accept="image/*"
+  >
+  <div class="form-text">
+    Formats acceptés : JPG, PNG, WEBP (max 2 Mo)
+  </div>
+
+  <!-- Preview de l'image si existante -->
+  <div class="mt-2 text-center" *ngIf="currentDestination.photo">
+    <img [src]="getPhotoUrl(currentDestination.photo)" class="img-fluid rounded shadow-sm" style="max-height:150px;">
+  </div>
+</div>
+
+           <div class="col-12">
+              <label class="form-label">Activités</label>
+              
+              <!-- FormArray pour les activités -->
+              <div class="mb-2" *ngFor="let control of activitiesControls; let i = index">
+                <div class="input-group">
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    [formControl]="control"
+                    placeholder="Ex: Plage, Randonnée, Musées..."
+                  >
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-danger"
+                    (click)="removeActivityField(i)"
+                    [disabled]="activitiesControls.length === 1"
+                  >
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-6">
+  <label class="form-label">Type de voyage *</label>
+ <select 
+    id="typeVoyage" 
+    class="form-select" 
+    [(ngModel)]="currentDestination.type_voyage_id" 
+    name="typeVoyage_id"
+    required>
+    <option value="">-- Choisir un type --</option>
+    <option *ngFor="let type of typesVoyage" [value]="type.id">{{ type.libelle }}</option>
+  </select>
+</div>
+
+              
+              <!-- Bouton pour ajouter une nouvelle activité -->
+              <button 
+                type="button" 
+                class="btn btn-outline-primary btn-sm"
+                (click)="addActivityField()"
+              >
+                <i class="fas fa-plus me-1"></i>
+                Ajouter une activité
+              </button>
+              
+              <div class="form-text">
+                Ajoutez une activité par champ. Exemples : Visite culturelle, Plongée, Randonnée, Gastronomie
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" [disabled]="isSaving">
+          Annuler
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          (click)="saveDestination()"
+          [disabled]="!destinationForm.valid || isSaving"
+        >
+          <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+          <i *ngIf="!isSaving" class="fas fa-save me-2"></i>
+          {{isSaving ? 'Sauvegarde...' : (isEditing ? 'Modifier' : 'Ajouter')}}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMATION SUPPRESSION -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          Confirmer la suppression
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer cette destination ?</p>
+        <div class="alert alert-warning">
+          <i class="fas fa-info-circle me-2"></i>
+          Cette action est irréversible.
+        </div>
+        <div class="fw-bold text-center p-3 bg-light rounded" *ngIf="destinationToDelete">
+          {{destinationToDelete.nom}} - {{destinationToDelete.pays}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-danger" (click)="deleteDestination()">
+          <i class="fas fa-trash me-2"></i>
+          Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CSS CUSTOM -->
+<style>
+.nav-link-custom {
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1.5rem;
+  color: #64748b;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.nav-link-custom:hover {
+  background-color: #f1f5f9;
+  color: #2563eb;
+}
+
+.nav-link-custom.active {
+  background-color: #2563eb;
+  color: white;
+}
+
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+.fa-spin {
+  animation: fa-spin 1s infinite linear;
+}
+
+@keyframes fa-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
